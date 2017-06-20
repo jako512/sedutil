@@ -8,9 +8,11 @@ before_install:
   - docker build -t sedutil images
 
 script:
-  - docker run -it -v $PWD:/sedutil --privileged sedutil
+  - travis_wait 60 sleep infinity &
+  - docker run -it -v $PWD:/sedutil --privileged sedutil > log.txt
   - cp images/UEFI*/*.gz $TRAVIS_BUILD_DIR
   - cp images/Rescue/*.gz $TRAVIS_BUILD_DIR
+  - gzip log.txt > $TRAVIS_BUILD_DIR/log.txt.gz
   - chmod 777 ${TRAVIS_BUILD_DIR}/*
 
 before_deploy:
