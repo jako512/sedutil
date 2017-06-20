@@ -1,0 +1,37 @@
+dist: trusty
+sudo: required
+
+language: cpp
+
+compiler: gcc
+
+env:
+  global:
+    - LANG=en_US.UTF-8
+    - LANGUAGE=en_US:en
+    - LC_ALL=en_US.UTF-8
+
+before_install:
+  - sudo dpkg --add-architecture i386
+  - sudo apt-get update -qq
+  - sudo apt-get install -yqq bc build-essential cpio dosfstools g++-multilib gdisk git-core libncurses5-dev libncurses5-dev:i386 python squashfs-tools sudo unzip wget locales
+  - sudo locale-gen en_US.UTF-8
+
+script:
+  - cd images
+  - ./autobuild.sh
+  - cp UEFI*/*.gz $TRAVIS_BUILD_DIR
+  - cp Rescue/*.gz $TRAVIS_BUILD_DIR
+  - chmod 777 ${TRAVIS_BUILD_DIR}/*
+
+before_deploy:
+  - ls -la $TRAVIS_BUILD_DIR
+
+deploy:
+  provider: releases
+  api-key: "${GITHUB_TOKEN}"
+  skip_cleanup: true
+  file: "${TRAVIS_BUILD_DIR}/*"
+  overwrite: true
+  on:
+    tags: true
